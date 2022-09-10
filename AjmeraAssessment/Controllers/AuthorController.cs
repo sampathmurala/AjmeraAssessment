@@ -3,6 +3,7 @@ using AjmeraAssessment.Models;
 using AjmeraAssessment.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Caching.Memory;
 using System;
 using System.Collections.Generic;
@@ -65,18 +66,35 @@ namespace AjmeraAssessment.Controllers
         // GET: Author/Create
         public ActionResult Create()
         {
-            return View();
+            AddAuthorViewModel addAuthorViewModel = new AddAuthorViewModel();
+            var allBooks = unitOfWork.BookRepository.GetAll();
+            addAuthorViewModel.Books = allBooks.Select(x => new SelectListItem() { Text = x.Name, Value=x.Id.ToString(), Selected = false }).ToList();
+            return View(addAuthorViewModel);
         }
 
         // POST: Author/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create(Author author)
+        public ActionResult Create(AddAuthorViewModel addAuthorViewModel)
         {
             try
             {
+                Author author = unitOfWork.AuthorRepository.GetByName(addAuthorViewModel.Name.Trim());
+                if (author != null)
+                {
+                    ModelState.AddModelError("Author", $"Author Name '{author.Name}' Already Exists.");
+                    return Create();
+                }
+
+                 author = new Author() { Name = addAuthorViewModel.Name, BookAuthors = new List<BookAuthor>() };
+                var selectedBooks = addAuthorViewModel.SelectedBooks?.Where(x => x != null).Select(int.Parse).ToList();
+                selectedBooks?.ForEach(selectedBookId => author.BookAuthors.Add(new BookAuthor() { BookId = selectedBookId, Author = author }));
                 unitOfWork.AuthorRepository.Insert(author);
-                unitOfWork.Save();
+                unitOfWork.Save(); 
+
+                memoryCache.Remove("authorList");
+                memoryCache.Remove("bookList");
+
                 return RedirectToAction("Index", "Author");
             }
             catch
@@ -128,6 +146,7 @@ namespace AjmeraAssessment.Controllers
             {
                 unitOfWork.AuthorRepository.Delete(author);
                 unitOfWork.Save();
+                memoryCache.Remove("authorList"); 
                 return RedirectToAction("Index", "Author");
             }
             catch

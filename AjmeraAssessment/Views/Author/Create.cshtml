@@ -1,8 +1,9 @@
-﻿@model AjmeraAssessment.Models.Author
+﻿@model AddAuthorViewModel
 
 @{
     ViewData["Title"] = "Create";
 }
+@Html.ValidationSummary(false, "", new { @class = "text-danger" })
 
 <h1>Create</h1>
 
@@ -13,9 +14,16 @@
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
+                <label asp-for="Name" class="control-label">Author Name</label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="SelectedBooks" class="control-label">Select Books</label>
+                <select asp-for="SelectedBooks" asp-items="Model.Books">
+                    <option></option>
+                </select>
+                <span asp-validation-for="SelectedBooks" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

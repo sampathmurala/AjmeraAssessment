@@ -29,6 +29,11 @@ namespace AjmeraAssessment.Interfaces
             return dbContext.Authors.Include(c=> c.BookAuthors).ThenInclude(ba=> ba.Book).FirstOrDefault(x=> x.Id == id);
         }
 
+        public Author GetByName(string name)
+        {
+            return dbContext.Authors.Include(c => c.BookAuthors).ThenInclude(ba => ba.Book).FirstOrDefault(x => x.Name == name);
+        }
+         
         public void Insert(Author author)
         {
             dbContext.Authors.Add(author);
