@@ -78,9 +78,16 @@ namespace AjmeraAssessment.Controllers
         {
             try
             {
-                //return RedirectToAction(nameof(Index));
+                var book = unitOfWork.BookRepository.GetByName(modelBook.Name.Trim());
+                if (book != null)
+                {
+                    ModelState.AddModelError("book", $"Book Name '{modelBook.Name}' Already Exists.");
+                    return View();
+                }
                 unitOfWork.BookRepository.Insert(modelBook);
                 unitOfWork.Save();
+                memoryCache.Remove("bookList");
+                
                 return RedirectToAction("Index", "Book");
             }
             catch
@@ -137,6 +144,9 @@ namespace AjmeraAssessment.Controllers
                 } 
                  
                 unitOfWork.Save();
+                memoryCache.Remove("authorList");
+                memoryCache.Remove("bookList");
+
                 return RedirectToAction("Details", "Author", new { id = author.Id });
             }
             catch
@@ -183,6 +193,7 @@ namespace AjmeraAssessment.Controllers
             {
                 unitOfWork.BookRepository.Delete(book);
                 unitOfWork.Save();
+                memoryCache.Remove("bookList");
                 return RedirectToAction("Index", "Book");
             }
             catch
