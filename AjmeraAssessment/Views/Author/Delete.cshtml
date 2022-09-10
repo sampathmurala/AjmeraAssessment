@@ -1,0 +1,44 @@
+﻿@model AuthorBooksViewModel
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Delete</h1>
+@if (Model.Disabled == "disabled")
+{
+    <h3 class="alert-danger">You can not delete the author!</h3>
+}
+else
+{
+    <h3>Are you sure you want to delete this?</h3>
+}
+<div>
+    @*<h4>Author</h4>*@
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Author.Name)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Author.Name)
+        </dd>
+    </dl>
+    <dl class="row">
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Books)
+        </dt>
+        <dd class="col-sm-10">
+            @foreach (var item in Model.Books)
+            {
+                @item.Name <br />
+
+            }
+        </dd>
+    </dl>
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Author.Id" />
+        <input type="submit" value="Delete" class="btn btn-danger" @Model.Disabled /> |
+        <a asp-action="Index">Back to List</a>
+    </form>
+</div>
